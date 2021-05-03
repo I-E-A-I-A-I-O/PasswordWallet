@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Password Waller</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="passwords">Passwords</string>
+    <string name="add_password">Add password</string>
+    <string name="description">Description</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="save">Save</string>
+    <string name="add_a_new_password">Add a new password</string>
+    <string name="title_activity_main2">MainActivity</string>
+</resources>

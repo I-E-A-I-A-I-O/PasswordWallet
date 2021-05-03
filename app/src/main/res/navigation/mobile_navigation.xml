@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/passwordsFragment">
+    <fragment
+        android:id="@+id/passwordsFragment"
+        android:name="com.justdance.passwordwaller.ui.passwords.PasswordsFragment"
+        android:label="Saved passwords"
+        tools:layout="@layout/fragment_passwords" />
+    <fragment
+        android:id="@+id/passwordCreationFragment"
+        tools:layout="@layout/fragment_creation"
+        android:name="com.justdance.passwordwaller.ui.passwordCreation.PasswordCreationFragment"
+        android:label="Save a password" />
+</navigation>
