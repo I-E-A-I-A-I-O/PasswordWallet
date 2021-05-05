@@ -1,8 +1,9 @@
 package com.justdance.passwordwaller.network
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
+
 
 data class UserInfo(
-    @Json(name = "email") val email: String,
-    @Json(name = "user_id") val userId: String
+    @SerializedName("token") val token: String?,
+    @SerializedName("email") val email: String,
 )

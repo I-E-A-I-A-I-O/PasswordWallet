@@ -14,7 +14,7 @@ Router.post(
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return next(errors.array({onlyFirstError: true})[0]);
+      return next(errors.array({onlyFirstError: true})[0].msg);
     }
     users.create(req, res, next);
   }

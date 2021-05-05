@@ -15,15 +15,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.justdance.passwordwaller.databinding.FragmentCreationBinding
-import com.justdance.passwordwaller.network.ApiManager
+import com.justdance.passwordwaller.network.ApiService
 import com.justdance.passwordwaller.network.NewPasswordInfo
-import com.justdance.passwordwaller.network.PasswordInfo
-import com.justdance.passwordwaller.redux.passwords.addPassword
-import com.justdance.passwordwaller.redux.store
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class PasswordCreationFragment : Fragment() {
 
@@ -58,22 +52,7 @@ class PasswordCreationFragment : Fragment() {
                     binding.viewModel!!.password.value!!,
                     binding.viewModel!!.confirmation.value!!
                 )
-                ApiManager.retrofitService.addPassword(requestBody).enqueue(object: Callback<PasswordInfo> {
-                    override fun onResponse(
-                        call: Call<PasswordInfo>,
-                        response: Response<PasswordInfo>
-                    ) {
-                        val addedPassword = response.body()
-                        addedPassword?.let {
-                            store.dispatch(addPassword(it))
-                        }
-                    }
-
-                    override fun onFailure(call: Call<PasswordInfo>, t: Throwable) {
-                        Snackbar.make(view, "Error saving the password. Try again later.", Snackbar.LENGTH_SHORT).show()
-                    }
-
-                })
+                val reqApiService = ApiService()
             } catch (e: Exception) {
                 Snackbar.make(view, "Error saving the password. Try again later.", Snackbar.LENGTH_SHORT).show()
             }

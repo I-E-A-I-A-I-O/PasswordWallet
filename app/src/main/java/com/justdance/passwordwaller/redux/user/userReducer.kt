@@ -4,7 +4,7 @@ import com.justdance.passwordwaller.network.UserInfo
 
 fun userReducer(state: UserInfo?, action: Any) =
     when(action) {
-        is setUser -> action.userInfo
-        is removeUser -> null
+        is SetUser -> action.userInfo
+        is RemoveUser -> null
         else -> state
     }
