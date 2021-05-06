@@ -4,10 +4,7 @@ import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.POST
+import retrofit2.http.*
 
 private const val BASE_URL = "http://192.168.0.101:8000"
 private val client = OkHttpClient.Builder().build()
@@ -17,7 +14,7 @@ private val retrofit =
 interface ApiInterface {
     @Headers("Content-Type: application/json")
     @POST("password")
-    suspend fun addPassword(@Body newPassword: NewPasswordInfo): Call<PasswordInfo>
+    fun addPassword(@Header("Authorization") authToken: String?, @Body newPassword: NewPasswordInfo): Call<PasswordInfo>
 
     @Headers("Content-Type: application/json")
     @POST("session/login")
@@ -38,20 +35,28 @@ object ApiManager {
 }
 
 class ApiService {
-    suspend fun addPassword(newPassword: NewPasswordInfo, onResult: (PasswordInfo?) -> Unit) {
-        ApiManager.retrofitService.addPassword(newPassword).enqueue(
+    fun addPassword(authToken: String?, newPassword: NewPasswordInfo, onResult: (PasswordInfo?, ErrorResponse?) -> Unit) {
+        ApiManager.retrofitService.addPassword(authToken, newPassword).enqueue(
             object : Callback<PasswordInfo> {
-                override fun onResponse(
-                    call: Call<PasswordInfo>,
-                    response: Response<PasswordInfo>
-                ) {
-                    val addedPassword = response.body()
-                    onResult(addedPassword)
+                override fun onResponse(call: Call<PasswordInfo>, response: Response<PasswordInfo>) {
+                    if (response.isSuccessful) {
+                        onResult(response.body(), null)
+                    } else {
+                        try {
+                            val converter: Converter<ResponseBody, ErrorResponse> =
+                                retrofit.responseBodyConverter(ErrorResponse::class.java, arrayOfNulls<Annotation>(0))
+                            val errorResponse = converter.convert(response.errorBody()!!)
+                            onResult(null, errorResponse)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            onResult(null, null)
+                        }
+                    }
                 }
 
                 override fun onFailure(call: Call<PasswordInfo>, t: Throwable) {
                     t.printStackTrace()
-                    onResult(null)
+                    onResult(null, null)
                 }
 
             }
