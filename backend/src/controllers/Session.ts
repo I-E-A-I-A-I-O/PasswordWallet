@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import {Session} from './types/Session';
 import jwt from 'jsonwebtoken';
 import {TokenPayload} from '../helpers/types/TokenPayload';
-import {users} from '.';
 
 export class UserSession extends Session {
   async login(req: Request, res: Response, next: NextFunction) {

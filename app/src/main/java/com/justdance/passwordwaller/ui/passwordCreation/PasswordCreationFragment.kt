@@ -1,22 +1,23 @@
 package com.justdance.passwordwaller.ui.passwordCreation
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.afollestad.vvalidator.form
 import com.google.android.material.snackbar.Snackbar
 import com.justdance.passwordwaller.databinding.FragmentCreationBinding
 import com.justdance.passwordwaller.network.ApiService
+import com.justdance.passwordwaller.network.ErrorResponse
 import com.justdance.passwordwaller.network.NewPasswordInfo
+import com.justdance.passwordwaller.network.PasswordInfo
+import com.justdance.passwordwaller.redux.passwords.AddPassword
+import com.justdance.passwordwaller.redux.store
 import kotlinx.coroutines.launch
 
 class PasswordCreationFragment : Fragment() {
@@ -31,120 +32,77 @@ class PasswordCreationFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCreationBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         descriptionInputBindings()
         passwordInputBindings()
-        confirmationInputBindings()
-        binding.button.setOnClickListener {
-            buttonPressed(it)
+        form {
+            useRealTimeValidation(500, true)
+            inputLayout(binding.descriptionInputLayout) {
+                isNotEmpty().description("Insert a description.")
+            }
+            inputLayout(binding.passwordsInputLayout) {
+                isNotEmpty().description("Insert a password.")
+            }
+            submitWith(binding.saveButton) {
+                buttonPressed()
+            }
         }
         return binding.root
     }
 
-    private fun buttonPressed(view: View) {
+    private fun buttonPressed() {
         lifecycleScope.launch {
-            try {
-                val requestBody = NewPasswordInfo(
-                    binding.viewModel!!.description.value!!,
-                    binding.viewModel!!.password.value!!,
-                    binding.viewModel!!.confirmation.value!!
-                )
-                val reqApiService = ApiService()
-            } catch (e: Exception) {
-                Snackbar.make(view, "Error saving the password. Try again later.", Snackbar.LENGTH_SHORT).show()
+            val requestBody = NewPasswordInfo(
+                binding.viewModel!!.description.value!!,
+                binding.viewModel!!.password.value!!,
+            )
+            val apiService = ApiService()
+            val token = store.state.user?.token
+            apiService.addPassword(token, requestBody) { passwordInfo: PasswordInfo?, errorResponse: ErrorResponse? ->
+                passwordInfo?.let { addedPass ->
+                    store.dispatch(AddPassword(addedPass))
+                    view?.let {
+                        Snackbar.make(it, "Password saved.", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+                errorResponse?.let { error ->
+                    view?.let {
+                        Snackbar.make(it, error.error, Snackbar.LENGTH_LONG).show()
+                    }
+                }
+                if ((passwordInfo == null).and(errorResponse == null)) {
+                    view?.let {
+                        Snackbar.make(it, "Error saving the password. Try again later.", Snackbar.LENGTH_LONG).show()
+                    }
+                }
             }
         }
-    }
-
-    private fun Fragment.hideKeyboard() {
-        view?.let {
-            activity?.hideKeyboard(it)
-        }
-    }
-
-    private fun Context.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     private fun descriptionInputBindings() {
         binding.passwordDescription.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.viewModel!!.setDescription(s.toString())
             }
 
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-
+            override fun afterTextChanged(s: Editable?) {}
         })
-        binding.passwordDescription.setOnKeyListener { _, keyCode, event ->
-            when {
-                ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.action == KeyEvent.ACTION_DOWN)) -> {
-                    hideKeyboard()
-                    return@setOnKeyListener true
-                }
-                else -> false
-            }
-        }
     }
 
     private fun passwordInputBindings() {
         binding.passwordInput.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.viewModel!!.setPassword(s.toString())
             }
 
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-
+            override fun afterTextChanged(s: Editable?) {}
         })
-        binding.passwordInput.setOnKeyListener {_, keyCode, event ->
-            when {
-                ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.action == KeyEvent.ACTION_DOWN)) -> {
-                    hideKeyboard()
-                    return@setOnKeyListener true
-                }
-                else -> false
-            }
-        }
-    }
-
-    private fun confirmationInputBindings() {
-        binding.passwordInputConfirmation.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.viewModel!!.setConfirmation(s.toString())
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-
-        })
-        binding.passwordInputConfirmation.setOnKeyListener {_, keyCode, event ->
-            when {
-                ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.action == KeyEvent.ACTION_DOWN)) -> {
-                    hideKeyboard()
-                    return@setOnKeyListener true
-                }
-                else -> false
-            }
-        }
     }
 }

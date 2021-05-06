@@ -4,7 +4,7 @@ import express, {Request, Response, NextFunction} from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import {log} from './helpers';
-import {sessionRouter, usersRouter} from './routers';
+import {passwordRouter, sessionRouter, usersRouter} from './routers';
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -15,6 +15,7 @@ app.use(express.json());
 
 app.use('/users', usersRouter);
 app.use('/session', sessionRouter);
+app.use('/passwords', passwordRouter);
 
 app.use(
   (
