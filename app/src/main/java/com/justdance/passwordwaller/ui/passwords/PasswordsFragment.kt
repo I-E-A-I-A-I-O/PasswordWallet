@@ -6,8 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.justdance.passwordwaller.databinding.FragmentPasswordsBinding
 import com.justdance.passwordwaller.redux.store
+import com.justdance.passwordwaller.ui.passwordsRecycler.Adapter
+import com.justdance.passwordwaller.ui.passwordsRecycler.DataSource
 import org.reduxkotlin.StoreSubscriber
 
 class PasswordsFragment : Fragment() {
@@ -27,15 +30,16 @@ class PasswordsFragment : Fragment() {
         binding = FragmentPasswordsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        updateLayoutValues()
-        unsubscribe = store.subscribe {
-            updateLayoutValues()
-        }
         return binding.root
     }
 
-    private fun updateLayoutValues() {
-        binding.emailDisplay.text = store.state.user?.email
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        DataSource().loadPasswords(view, lifecycleScope)
+        binding.passwordsRecycler.adapter = Adapter(requireContext(), layoutInflater)
+        unsubscribe = store.subscribe {
+            binding.passwordsRecycler.adapter = Adapter(requireContext(), layoutInflater)
+        }
     }
 
     override fun onDestroyView() {

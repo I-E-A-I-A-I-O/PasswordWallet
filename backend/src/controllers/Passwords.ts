@@ -29,7 +29,35 @@ export class Passwords extends CRUD {
       client.release();
     }
   }
-  read(req: Request, res: Response, next: NextFunction) {}
+  private decryptPasswords(passwords: Password[]): Password[] {
+    let decryptedPasswords: Password[] = [];
+    for (let i = 0; i < passwords.length; i++) {
+      decryptedPasswords.push({
+        password_id: passwords[i].password_id,
+        description: passwords[i].description,
+        password: rsa.decrypt(passwords[i].password),
+      });
+    }
+    return decryptedPasswords;
+  }
+  async read(req: Request, res: Response, next: NextFunction) {
+    const {authorization} = req.headers;
+    const payload = await token.getPayload(authorization);
+    if (!payload) {
+      return next('Auth token missing.');
+    }
+    const client = await db.getClient();
+    try {
+      const passwords = await client.query<Password>(queries.getPasswords, [
+        payload.userId,
+      ]);
+      res.status(201).json([...this.decryptPasswords(passwords.rows)]);
+    } catch (err) {
+      next(err);
+    } finally {
+      client.release();
+    }
+  }
   update(req: Request, res: Response, next: NextFunction) {}
   delete(req: Request, res: Response, next: NextFunction) {}
 }

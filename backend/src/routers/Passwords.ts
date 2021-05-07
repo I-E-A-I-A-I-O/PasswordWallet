@@ -18,3 +18,7 @@ Router.post(
     passwords.create(req, res, next);
   }
 );
+
+Router.get('/user', (req: Request, res: Response, next: NextFunction) => {
+  passwords.read(req, res, next);
+});

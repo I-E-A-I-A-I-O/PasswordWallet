@@ -1,10 +1,15 @@
 import rsa from 'node-rsa';
+import fse from 'fs-extra';
 
 export class Encryption {
   private key: rsa;
 
   constructor() {
-    this.key = new rsa(process.env.PRIVATE_KEY!!, 'pkcs1');
+    if (process.env.PRIVATE_KEY) {
+      this.key = new rsa(process.env.PRIVATE_KEY);
+    } else {
+      this.key = new rsa();
+    }
   }
 
   encrypt(data: string): string {
@@ -12,6 +17,6 @@ export class Encryption {
   }
 
   decrypt(data: string): string {
-    return this.key.decrypt(data, 'base64');
+    return this.key.decrypt(data, 'utf8');
   }
 }

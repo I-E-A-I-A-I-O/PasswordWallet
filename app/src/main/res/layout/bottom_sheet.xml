@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="8dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/editOption"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:src="@drawable/ic_baseline_edit_24"
+            android:layout_width="wrap_content"
+            android:paddingRight="30dp"
+            android:layout_height="30dp"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/deleteOption"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:paddingRight="30dp"
+            android:src="@drawable/ic_baseline_delete_24" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

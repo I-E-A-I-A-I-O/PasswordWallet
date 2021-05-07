@@ -1,27 +1,28 @@
 package com.justdance.passwordwaller.network
 
-import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 private const val BASE_URL = "http://192.168.0.101:8000"
-private val client = OkHttpClient.Builder().build()
 private val retrofit =
     Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).baseUrl(BASE_URL).build()
 
 interface ApiInterface {
     @Headers("Content-Type: application/json")
-    @POST("password")
-    fun addPassword(@Header("Authorization") authToken: String?, @Body newPassword: NewPasswordInfo): Call<PasswordInfo>
+    @POST("passwords/password")
+    fun addPassword(
+        @Header("Authorization") authToken: String?,
+        @Body newPassword: NewPasswordInfo
+    ): Call<PasswordInfo>
 
     @Headers("Content-Type: application/json")
     @POST("session/login")
     fun login(@Body loginInfo: LoginInfo): Call<UserInfo>
 
-    @GET("passwords")
-    suspend fun getPasswords(): List<PasswordInfo>
+    @GET("passwords/user")
+    fun getPasswords(@Header("Authorization") authToken: String?): Call<List<PasswordInfo>>
 
     @Headers("Content-Type: application/json")
     @POST("users/user")
@@ -92,8 +93,30 @@ class ApiService {
         )
     }
 
-    suspend fun getPasswords(): List<PasswordInfo> {
-        TODO("Not yet implemented")
+    fun getPasswords(authToken: String?, onResult: (List<PasswordInfo>?, ErrorResponse?) -> Unit) {
+        ApiManager.retrofitService.getPasswords(authToken).enqueue(
+            object: Callback<List<PasswordInfo>> {
+                override fun onResponse(call: Call<List<PasswordInfo>>, response: Response<List<PasswordInfo>>) {
+                    if (response.isSuccessful) {
+                        onResult(response.body(), null)
+                    } else {
+                        try {
+                            val converter: Converter<ResponseBody, ErrorResponse> =
+                                retrofit.responseBodyConverter(ErrorResponse::class.java, arrayOfNulls<Annotation>(0))
+                            val errorResponse = converter.convert(response.errorBody()!!)
+                            onResult(null, errorResponse)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            onResult(null, null)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<List<PasswordInfo>>, t: Throwable) {
+
+                }
+            }
+        )
     }
 
     fun registerUser(newUser: NewUser, onResult: (UserInfo?, ErrorResponse?) -> Unit) {
