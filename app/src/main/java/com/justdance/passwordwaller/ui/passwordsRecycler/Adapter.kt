@@ -6,16 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.snackbar.Snackbar
 import com.justdance.passwordwaller.R
+import com.justdance.passwordwaller.daoDb.AppDatabase
+import com.justdance.passwordwaller.network.ApiManager
+import com.justdance.passwordwaller.redux.passwords.AddPassword
 import com.justdance.passwordwaller.redux.passwords.DeletePassword
 import com.justdance.passwordwaller.redux.store
+import kotlinx.coroutines.launch
 
 class Adapter(
     private val context: Context,
-    private val layoutInflater: LayoutInflater
+    private val layoutInflater: LayoutInflater,
+    private val scope: LifecycleCoroutineScope,
+    private val view: View,
+    private val appContext: Context?
     ) : RecyclerView.Adapter<Adapter.ItemViewHolder>() {
     class ItemViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val descriptionView: TextView = view.findViewById(R.id.passwordDescription)
@@ -35,17 +44,36 @@ class Adapter(
         holder.passwordView.text = item.password
         holder.cardView.setOnClickListener {
             val dialog = BottomSheetDialog(context)
-            val view = layoutInflater.inflate(R.layout.bottom_sheet, null)
-            val editOption = view.findViewById<LinearLayout>(R.id.editOption)
-            val deleteOption = view.findViewById<LinearLayout>(R.id.deleteOption)
+            val dialogView = layoutInflater.inflate(R.layout.bottom_sheet, null)
+            val editOption = dialogView.findViewById<LinearLayout>(R.id.editOption)
+            val deleteOption = dialogView.findViewById<LinearLayout>(R.id.deleteOption)
             editOption.setOnClickListener {
                 dialog.dismiss()
             }
             deleteOption.setOnClickListener {
                 store.dispatch(DeletePassword(item.passwordId))
+                scope.launch {
+                    try {
+                        ApiManager.retrofitService.deletePassword(
+                            store.state.user?.token,
+                            "/passwords/password/${item.passwordId}"
+                        )
+                        appContext?.let {
+                            scope.launch {
+                                val database = AppDatabase.getInstance(it)
+                                database.passwordDao().deletePassword(item.passwordId)
+                            }
+                        }
+                        Snackbar.make(view, "Password deleted.", Snackbar.LENGTH_SHORT)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        store.dispatch(AddPassword(item))
+                        Snackbar.make(view, "Error deleting the password.", Snackbar.LENGTH_SHORT)
+                    }
+                }
                 dialog.dismiss()
             }
-            dialog.setContentView(view)
+            dialog.setContentView(dialogView)
             dialog.show()
         }
     }

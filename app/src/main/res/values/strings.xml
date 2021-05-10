@@ -26,4 +26,8 @@
     <string name="register">Register</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <!-- Strings related to preferences -->
+    <string name="preferences_saved_email">session_email</string>
+    <string name="preferences_saved_token">session_token</string>
+    <string name="remember">Remember?</string>
 </resources>

@@ -35,10 +35,21 @@ class PasswordsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        DataSource().loadPasswords(view, lifecycleScope)
-        binding.passwordsRecycler.adapter = Adapter(requireContext(), layoutInflater)
+        binding.passwordsRefresh.setOnRefreshListener {
+            onRefresh(view)
+        }
+        binding.passwordsRecycler.adapter = Adapter(requireContext(), layoutInflater, lifecycleScope, view, activity?.applicationContext)
         unsubscribe = store.subscribe {
-            binding.passwordsRecycler.adapter = Adapter(requireContext(), layoutInflater)
+            if (binding.passwordsRefresh.isRefreshing) {
+                binding.passwordsRefresh.isRefreshing = false
+            }
+            binding.passwordsRecycler.adapter = Adapter(requireContext(), layoutInflater, lifecycleScope, view, activity?.applicationContext)
+        }
+    }
+
+    private fun onRefresh(view: View) {
+        activity?.applicationContext?.let {
+            DataSource().loadPasswords(view, lifecycleScope, it)
         }
     }
 

@@ -27,6 +27,13 @@ interface ApiInterface {
     @Headers("Content-Type: application/json")
     @POST("users/user")
     fun registerUser(@Body newUser: NewUser): Call<UserInfo>
+
+    @Headers("Content-Type: application/json")
+    @DELETE
+    suspend fun deletePassword(
+        @Header("Authorization") authToken: String?,
+        @Url url: String
+    )
 }
 
 object ApiManager {
@@ -113,7 +120,8 @@ class ApiService {
                 }
 
                 override fun onFailure(call: Call<List<PasswordInfo>>, t: Throwable) {
-
+                    t.printStackTrace()
+                    onResult(null, null)
                 }
             }
         )
@@ -146,5 +154,4 @@ class ApiService {
             }
         )
     }
-
 }

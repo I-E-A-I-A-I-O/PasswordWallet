@@ -59,5 +59,21 @@ export class Passwords extends CRUD {
     }
   }
   update(req: Request, res: Response, next: NextFunction) {}
-  delete(req: Request, res: Response, next: NextFunction) {}
+  async delete(req: Request, res: Response, next: NextFunction) {
+    const {authorization} = req.headers;
+    const payload = await token.getPayload(authorization);
+    if (!payload) {
+      return next('Auth token missing.');
+    }
+    const client = await db.getClient();
+    const {passwordId} = req.params;
+    try {
+      await client.query(queries.deletePassword, [passwordId]);
+      res.sendStatus(200);
+    } catch (err) {
+      next(err);
+    } finally {
+      client.release();
+    }
+  }
 }
