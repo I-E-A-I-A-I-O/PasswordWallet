@@ -9,5 +9,6 @@ fun passwordReducer(state: List<PasswordInfo>, action: Any) =
             it.passwordId != action.passwordId
         }
         is SetPasswords -> action.passwords
+        is DeleteAllPasswords -> listOf()
         else -> state
     }

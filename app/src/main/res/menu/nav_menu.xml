@@ -3,11 +3,11 @@
 
     <group>
         <item
-            android:id="@+id/nav_profile"
+            android:id="@+id/nav_logout"
             android:icon="@drawable/ic_baseline_close_24"
             android:title="@string/sign_out"/>
         <item
-            android:id="@+id/nav_messages"
+            android:id="@+id/nav_update_credentials"
             android:icon="@drawable/ic_baseline_settings_24"
             android:title="@string/update_credentials"/>
     </group>

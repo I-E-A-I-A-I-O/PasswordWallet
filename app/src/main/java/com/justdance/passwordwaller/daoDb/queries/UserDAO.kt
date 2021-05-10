@@ -14,4 +14,6 @@ interface UserDAO {
     suspend fun insertAll(vararg users: User)
     @Delete
     suspend fun deleteUser(user: User)
+    @Query("DELETE FROM user")
+    suspend fun deleteAllUsers()
 }
