@@ -44,4 +44,24 @@
             android:textSize="21sp"
             android:textStyle="bold" />
     </LinearLayout>
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/CopyOption"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:paddingRight="30dp"
+            android:src="@drawable/ic_baseline_content_copy_24" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/copy_text"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 </LinearLayout>

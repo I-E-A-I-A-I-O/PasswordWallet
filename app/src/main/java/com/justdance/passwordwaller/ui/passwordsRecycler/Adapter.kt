@@ -24,7 +24,8 @@ class Adapter(
     private val layoutInflater: LayoutInflater,
     private val scope: LifecycleCoroutineScope,
     private val view: View,
-    private val appContext: Context?
+    private val appContext: Context?,
+    private val onCopy: (label: String, text: String) -> Unit
     ) : RecyclerView.Adapter<Adapter.ItemViewHolder>() {
     class ItemViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val descriptionView: TextView = view.findViewById(R.id.passwordDescription)
@@ -47,6 +48,11 @@ class Adapter(
             val dialogView = layoutInflater.inflate(R.layout.bottom_sheet, null)
             val editOption = dialogView.findViewById<LinearLayout>(R.id.editOption)
             val deleteOption = dialogView.findViewById<LinearLayout>(R.id.deleteOption)
+            val copyOption = dialogView.findViewById<LinearLayout>(R.id.CopyOption)
+            copyOption.setOnClickListener {
+                dialog.dismiss()
+                onCopy(item.description, item.password)
+            }
             editOption.setOnClickListener {
                 dialog.dismiss()
             }
@@ -64,11 +70,11 @@ class Adapter(
                                 database.passwordDao().deletePassword(item.passwordId)
                             }
                         }
-                        Snackbar.make(view, "Password deleted.", Snackbar.LENGTH_SHORT)
+                        Snackbar.make(view, "Password deleted.", Snackbar.LENGTH_SHORT).show()
                     } catch (e: Exception) {
                         e.printStackTrace()
                         store.dispatch(AddPassword(item))
-                        Snackbar.make(view, "Error deleting the password.", Snackbar.LENGTH_SHORT)
+                        Snackbar.make(view, "Error deleting the password.", Snackbar.LENGTH_SHORT).show()
                     }
                 }
                 dialog.dismiss()

@@ -23,7 +23,6 @@ class LoginActivity : AppCompatActivity() {
             R.id.loginFragment, R.id.registerFragment
         ))
         setupActionBarWithNavController(navController, appBarConfiguration)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun onSupportNavigateUp(): Boolean {
