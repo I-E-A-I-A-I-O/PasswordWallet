@@ -18,3 +18,14 @@ Router.post(
     passwords.create(req, res, next);
   }
 );
+
+Router.get('/user', (req: Request, res: Response, next: NextFunction) => {
+  passwords.read(req, res, next);
+});
+
+Router.delete(
+  '/password/:passwordId',
+  (req: Request, res: Response, next: NextFunction) => {
+    passwords.delete(req, res, next);
+  }
+);

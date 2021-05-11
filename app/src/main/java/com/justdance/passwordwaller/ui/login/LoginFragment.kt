@@ -16,6 +16,8 @@ import com.afollestad.vvalidator.form
 import com.google.android.material.snackbar.Snackbar
 import com.justdance.passwordwaller.MainActivity
 import com.justdance.passwordwaller.R
+import com.justdance.passwordwaller.daoDb.AppDatabase
+import com.justdance.passwordwaller.daoDb.entities.User
 import com.justdance.passwordwaller.databinding.LoginFragmentBinding
 import com.justdance.passwordwaller.network.ApiService
 import com.justdance.passwordwaller.network.ErrorResponse
@@ -23,6 +25,7 @@ import com.justdance.passwordwaller.network.LoginInfo
 import com.justdance.passwordwaller.network.UserInfo
 import com.justdance.passwordwaller.redux.store
 import com.justdance.passwordwaller.redux.user.SetUser
+import com.justdance.passwordwaller.ui.passwordsRecycler.DataSource
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -72,8 +75,10 @@ class LoginFragment : Fragment() {
                 LoginInfo(viewModel.email.value!!.toLowerCase(Locale.ROOT), viewModel.password.value!!)
             apiService.login(requestBody) { userInfo: UserInfo?, errorResponse: ErrorResponse? ->
                 toggleLoading()
-                userInfo?.let {
-                    store.dispatch(SetUser(it))
+                userInfo?.let { session ->
+                    persistSession(session)
+                    store.dispatch(SetUser(session))
+                    context?.let { view?.let { it1 -> DataSource().loadPasswords(it1, lifecycleScope, it) } }
                     redirect()
                 }
                 errorResponse?.let { error ->
@@ -89,6 +94,41 @@ class LoginFragment : Fragment() {
             }
         }
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        autoLogin()
+    }
+
+    private fun autoLogin() {
+        lifecycleScope.launch {
+            if (store.state.user?.email != null) {
+                return@launch redirect()
+            }
+            val context = activity?.applicationContext ?: return@launch
+            val users = AppDatabase.getInstance(context).userDao().getAll()
+            if (users.isEmpty()) {
+                return@launch
+            }
+            val userInfo = UserInfo(users[0].token, users[0].email)
+            store.dispatch(SetUser(userInfo))
+            view?.let { DataSource().loadPasswords(it, lifecycleScope, context) }
+            redirect()
+        }
+    }
+
+    private fun persistSession(userInfo: UserInfo) =
+        lifecycleScope.launch {
+            val isChecked = binding.rememberLoginSwitch.isChecked
+            if (!isChecked) {
+                return@launch
+            }
+            val context = activity?.applicationContext ?: return@launch
+            val token = userInfo.token ?: return@launch
+            val info = User( 1, userInfo.email, token)
+            AppDatabase.getInstance(context).userDao().insertAll(info)
+        }
+
 
     private fun toggleLoading() {
         binding.loginButton.isEnabled = !binding.loginButton.isEnabled

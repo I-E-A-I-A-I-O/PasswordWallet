@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Password Waller</string>
+    <string name="app_name">Password Wallet</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -24,4 +24,25 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="register">Register</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <!-- Strings related to preferences -->
+    <string name="preferences_saved_email">session_email</string>
+    <string name="preferences_saved_token">session_token</string>
+    <string name="remember">Remember?</string>
+    <string name="copy">copy</string>
+    <string name="copy_text">Copy</string>
+    <string name="sign_out">Sign out</string>
+    <string name="update_credentials">Update credentials</string>
+    <string name="title_activity_test">test</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
 </resources>

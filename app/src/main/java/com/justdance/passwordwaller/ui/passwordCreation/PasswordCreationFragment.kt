@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -53,8 +54,17 @@ class PasswordCreationFragment : Fragment() {
         return binding.root
     }
 
+    private fun toggleLoading() {
+        binding.saveButton.isEnabled = !binding.saveButton.isEnabled
+        binding.saveLoading.visibility = when(binding.saveLoading.isVisible) {
+            true -> View.GONE
+            else -> View.VISIBLE
+        }
+    }
+
     private fun buttonPressed() {
         lifecycleScope.launch {
+            toggleLoading()
             val requestBody = NewPasswordInfo(
                 binding.viewModel!!.description.value!!,
                 binding.viewModel!!.password.value!!,
@@ -62,6 +72,7 @@ class PasswordCreationFragment : Fragment() {
             val apiService = ApiService()
             val token = store.state.user?.token
             apiService.addPassword(token, requestBody) { passwordInfo: PasswordInfo?, errorResponse: ErrorResponse? ->
+                toggleLoading()
                 passwordInfo?.let { addedPass ->
                     store.dispatch(AddPassword(addedPass))
                     view?.let {

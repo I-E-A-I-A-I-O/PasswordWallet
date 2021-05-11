@@ -1,7 +1,8 @@
 export = {
   insertPassword:
     'INSERT INTO passwords(user_id, description, password) VALUES($1, $2, $3) RETURNING *',
-  getPasswords: 'SELECT * FROM passwords WHERE user_id = $1',
+  getPasswords:
+    'SELECT password_id, description, password FROM passwords WHERE user_id = $1',
   updatePassword:
     'UPDATE passwords SET password = $1, description = $2 WHERE password_id = $3',
   deletePassword: 'DELETE FROM passwords WHERE password_id = $1',
